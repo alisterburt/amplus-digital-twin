@@ -148,7 +148,7 @@ def create_input_multislice(microscope, slice_thickness, margin, simulation_type
     # Condenser lens
     # source spread function
     # ssf_sigma = multem.mrad_to_sigma(input_multislice.E_0, 0.02)
-    # input_multislice.obj_lens_ssf_sigma = ssf_sigma
+    # input_multislice.cond_lens_ssf_sigma = ssf_sigma
 
     # Objective lens
     input_multislice.obj_lens_m = microscope.lens.m
@@ -182,11 +182,11 @@ def create_input_multislice(microscope, slice_thickness, margin, simulation_type
 
     # defocus spread function
     input_multislice.obj_lens_dsf_sigma = defocus_spread(
-        microscope.lens.c_c,
+        microscope.lens.c_c * 1e-3 / 1e-10,
         microscope.beam.energy_spread,
         microscope.lens.current_spread,
         microscope.beam.acceleration_voltage_spread,
-    )
+    ) / sqrt(2)
 
     # zero defocus reference
     input_multislice.obj_lens_zero_defocus_type = "Last"
@@ -376,7 +376,7 @@ class ExitWaveImageSimulator(object):
         input_multislice.spec_lz = self.sample.containing_box[1][2]
 
         # Either slice or don't
-        if len(extractor) == 1:
+        if True:  # len(extractor) == 1:
 
             # Set the atoms in the input after translating them for the offset
             zslice = extractor[0]
@@ -389,6 +389,15 @@ class ExitWaveImageSimulator(object):
             ).to_multem()
 
             # Run the simulation
+            # masker = multem.Masker(input_multislice.ny, input_multislice.nx)
+            length = input_multislice.nx
+            radius = 400
+            offset_x = 0
+            offset_y = offset + 1024 / 2.0 - radius
+            offset_z = 1024 / 2.0 - radius
+            # masker.set_shape("Cylinder")
+            # masker.set_cylinder((offset_x, offset_y, offset_z), length, radius)
+            # output_multislice = multem.simulate(system_conf, input_multislice, masker)
             output_multislice = multem.simulate(system_conf, input_multislice)
 
         else:
