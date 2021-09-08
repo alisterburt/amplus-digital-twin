@@ -73,7 +73,11 @@ class UniformAngularScan(Scan):
         1
 
     @property
-    def angles(self) -> Rotation:
+    def angles(self) -> numpy.ndarray:
+        return numpy.arange(self.n)
+
+    @property
+    def orientations(self) -> Rotation:
         # Draw n uniform samples from SO(3)
         return Rotation.from_matrix(
             special_ortho_group.rvs(dim=3, size=self.n)
